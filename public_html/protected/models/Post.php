@@ -16,6 +16,12 @@
  */
 class Post extends CActiveRecord
 {
+    const STATUS_DRAFT = 1;
+    const STATUS_PUBLISHED = 2;
+    const STATUS_ARCHIVED = 3;
+    
+    private $oldTags;
+    
 	/**
 	 * @return string the associated database table name
 	 */
@@ -52,6 +58,18 @@ class Post extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'author' => array(
+                self::BELONGS_TO, 'User', 'author_id'
+            ),
+            'comments' => array(
+                self::HAS_MANY, 'Comment', 'post_id',
+                'condition' => 'comments.status='.Comment::STATUS_APPROVED,
+                'order' => 'comments.create_time DESC'
+            ),
+            'commentCount' => array(
+                self::STAT, 'Comment', 'post_id',
+                'condition' => 'status='.Comment::STATUS_APPROVED
+            ),
 		);
 	}
 
@@ -116,19 +134,44 @@ class Post extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+    
+    protected function beforeSave()
+    {
+        if (parent::beforeSave()) {
+            if ($this->isNewRecord) {
+                $this->create_time = $this->update_time = time();
+                $this->author_id = Yii::app()->user->id;
+            } else {
+                $this->update_time = time();
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    protected function afterSave()
+    {
+        parent::afterSave();
+        Tag::model()->updateFrequency($this->oldTags, $this->tags);
+    }
+
+    protected function afterFind()
+    {
+        parent::afterFind();
+        $this->oldTags = $this->tags;
+    }
 
     public function normalizeTags($attribute,$params)
     {
         $this->tags = Tag::array2string(array_unique(Tag::string2array($this->tags)));
     }
-
-    public static function string2array($tags)
+    
+    public function getUrl()
     {
-        return preg_split('/\s*,\s*/',trim($tags), -1, PREG_SPLIT_NO_EMPTY);
-    }
-
-    public static function array2string($tags)
-    {
-        return implode(', ', $tags);
+        return Yii::app()->createUrl('post/view', array(
+            'id' => $this->id,
+            'title' => $this->title,
+        ));
     }
 }

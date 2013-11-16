@@ -2,6 +2,8 @@
 
 class PostController extends Controller
 {
+    private $model;
+    
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
@@ -122,10 +124,25 @@ class PostController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Post');
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
+        $criteria = new CDbCriteria(array(
+            'condition'=>'status='.Post::STATUS_PUBLISHED,
+            'order'=>'update_time DESC',
+            'with'=>'commentCount',
+        ));
+        if(isset($_GET['tag'])) {
+            $criteria->addSearchCondition('tags', $_GET['tag']);
+        }
+
+        $dataProvider = new CActiveDataProvider('Post', array(
+            'pagination' => array(
+                'pageSize' => 5,
+            ),
+            'criteria' => $criteria,
+        ));
+
+        $this->render('index',array(
+            'dataProvider' => $dataProvider,
+        ));
 	}
 
 	/**
@@ -152,10 +169,21 @@ class PostController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=Post::model()->findByPk($id);
-		if($model===null)
-			throw new CHttpException(404,'The requested page does not exist.');
-		return $model;
+        if($this->model === null)
+        {
+            if(Yii::app()->user->isGuest) {
+                $condition = 'status='.Post::STATUS_PUBLISHED
+                           . ' OR status='.Post::STATUS_ARCHIVED;
+            } else {
+                $condition = '';
+            }
+            $this->model = Post::model()->findByPk($id, $condition);
+
+            if($this->model === null) {
+                throw new CHttpException(404,'The requested page does not exist.');
+            }
+        }
+        return $this->model;
 	}
 
 	/**
