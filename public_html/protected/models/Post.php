@@ -1,24 +1,27 @@
 <?php
 
 /**
- * This is the model class for table "{{user}}".
+ * This is the model class for table "{{post}}".
  *
- * The followings are the available columns in table '{{user}}':
- * @property string $profile
- * @property string $salt
+ * The followings are the available columns in table '{{post}}':
+ * @property integer $author_id
+ * @property integer $update_time
+ * @property integer $create_time
+ * @property string $tags
+ * @property integer $status
  * @property integer $id
- * @property string $username
- * @property string $password
- * @property string $email
+ * @property string $name
+ * @property string $title
+ * @property string $content
  */
-class User extends CActiveRecord
+class Post extends CActiveRecord
 {
 	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
 	{
-		return '{{user}}';
+		return '{{post}}';
 	}
 
 	/**
@@ -29,12 +32,15 @@ class User extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('salt', 'length', 'max'=>255),
-			array('username, password, email', 'length', 'max'=>128),
-			array('profile', 'safe'),
+            array('title, content, status', 'required'),
+			array('name, title', 'length', 'max'=>128),
+            array('status', 'in', 'range' => array(1,2,3)),
+            array('tags', 'match', 'pattern'=>'/^[\w\s,]+$/',
+                'message'=>'Tags can only contain word characters.'),
+            array('tags', 'normalizeTags'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('profile, salt, id, username, password, email', 'safe', 'on'=>'search'),
+			array('author_id, update_time, create_time, tags, status, id, name, title, content', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -55,12 +61,15 @@ class User extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'profile' => 'Profile',
-			'salt' => 'Salt',
+			'author_id' => 'Author',
+			'update_time' => 'Update Time',
+			'create_time' => 'Create Time',
+			'tags' => 'Tags',
+			'status' => 'Status',
 			'id' => 'ID',
-			'username' => 'Username',
-			'password' => 'Password',
-			'email' => 'Email',
+			'name' => 'Name',
+			'title' => 'Title',
+			'content' => 'Content',
 		);
 	}
 
@@ -82,12 +91,15 @@ class User extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('profile',$this->profile,true);
-		$criteria->compare('salt',$this->salt,true);
+		$criteria->compare('author_id',$this->author_id);
+		$criteria->compare('update_time',$this->update_time);
+		$criteria->compare('create_time',$this->create_time);
+		$criteria->compare('tags',$this->tags,true);
+		$criteria->compare('status',$this->status);
 		$criteria->compare('id',$this->id);
-		$criteria->compare('username',$this->username,true);
-		$criteria->compare('password',$this->password,true);
-		$criteria->compare('email',$this->email,true);
+		$criteria->compare('name',$this->name,true);
+		$criteria->compare('title',$this->title,true);
+		$criteria->compare('content',$this->content,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -98,21 +110,25 @@ class User extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return User the static model class
+	 * @return Post the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
 	}
 
-    public function validatePassword($password)
+    public function normalizeTags($attribute,$params)
     {
-        return $password == $this->password;
-        //return CPasswordHelper::verifyPassword($password,$this->password);
+        $this->tags = Tag::array2string(array_unique(Tag::string2array($this->tags)));
     }
 
-    public function hashPassword($password)
+    public static function string2array($tags)
     {
-        return CPasswordHelper::hashPassword($password);
+        return preg_split('/\s*,\s*/',trim($tags), -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    public static function array2string($tags)
+    {
+        return implode(', ', $tags);
     }
 }

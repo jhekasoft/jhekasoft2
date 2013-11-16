@@ -12,6 +12,16 @@
 )); ?>
 
 	<div class="row">
+		<?php echo $form->label($model,'profile'); ?>
+		<?php echo $form->textArea($model,'profile',array('rows'=>6, 'cols'=>50)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'salt'); ?>
+		<?php echo $form->textField($model,'salt',array('size'=>60,'maxlength'=>255)); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->label($model,'id'); ?>
 		<?php echo $form->textField($model,'id'); ?>
 	</div>

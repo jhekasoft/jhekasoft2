@@ -48,6 +48,7 @@ return array(
 		*/
 		'db'=>array(
 			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/jhekasoft.db',
+            'tablePrefix'=>'jh_',
 		),
 		// uncomment the following to use a MySQL database
 		/*
