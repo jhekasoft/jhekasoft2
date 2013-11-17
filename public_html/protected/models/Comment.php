@@ -11,6 +11,7 @@
  * @property string $email
  * @property string $url
  * @property integer $post_id
+ * @property string $content
  */
 class Comment extends CActiveRecord
 {
@@ -32,8 +33,11 @@ class Comment extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
+            array('content, author, email', 'required'),
 			array('status, create_time, post_id', 'numerical', 'integerOnly'=>true),
 			array('author, email, url', 'length', 'max'=>128),
+            array('email', 'email'),
+            array('url', 'url'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, status, create_time, author, email, url, post_id', 'safe', 'on'=>'search'),
@@ -60,10 +64,11 @@ class Comment extends CActiveRecord
 			'id' => 'ID',
 			'status' => 'Status',
 			'create_time' => 'Create Time',
-			'author' => 'Author',
+			'author' => 'Name',
 			'email' => 'Email',
-			'url' => 'Url',
+			'url' => 'Website',
 			'post_id' => 'Post',
+            'content' => 'Content',
 		);
 	}
 
@@ -92,6 +97,7 @@ class Comment extends CActiveRecord
 		$criteria->compare('email',$this->email,true);
 		$criteria->compare('url',$this->url,true);
 		$criteria->compare('post_id',$this->post_id);
+        $criteria->compare('content',$this->content,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -108,4 +114,73 @@ class Comment extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+	/**
+	 * Approves a comment.
+	 */
+	public function approve()
+	{
+		$this->status=Comment::STATUS_APPROVED;
+		$this->update(array('status'));
+	}
+
+	/**
+	 * @param Post the post that this comment belongs to. If null, the method
+	 * will query for the post.
+	 * @return string the permalink URL for this comment
+	 */
+	public function getUrl($post=null)
+	{
+		if($post===null)
+			$post=$this->post;
+		return $post->url.'#c'.$this->id;
+	}
+
+	/**
+	 * @return string the hyperlink display for the current comment's author
+	 */
+	public function getAuthorLink()
+	{
+		if(!empty($this->url))
+			return CHtml::link(CHtml::encode($this->author),$this->url);
+		else
+			return CHtml::encode($this->author);
+	}
+
+	/**
+	 * @return integer the number of comments that are pending approval
+	 */
+	public function getPendingCommentCount()
+	{
+		return $this->count('status='.self::STATUS_PENDING);
+	}
+
+	/**
+	 * @param integer the maximum number of comments that should be returned
+	 * @return array the most recently added comments
+	 */
+	public function findRecentComments($limit=10)
+	{
+		return $this->with('post')->findAll(array(
+			'condition'=>'t.status='.self::STATUS_APPROVED,
+			'order'=>'t.create_time DESC',
+			'limit'=>$limit,
+		));
+	}
+
+	/**
+	 * This is invoked before the record is saved.
+	 * @return boolean whether the record should be saved.
+	 */
+    protected function beforeSave()
+    {
+        if (parent::beforeSave()) {
+            if($this->isNewRecord) {
+                $this->create_time = time();
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
