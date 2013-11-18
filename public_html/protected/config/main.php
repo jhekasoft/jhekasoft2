@@ -36,19 +36,23 @@ return array(
 			'allowAutoLogin'=>true,
 		),
 		// uncomment the following to enable URLs in path-format
-		/*
 		'urlManager'=>array(
 			'urlFormat'=>'path',
 			'rules'=>array(
+                'post/<id:\d+>/<title:.*?>'=>'post/view',
+                'posts/<tag:.*?>'=>'post/index',
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 			),
 		),
-		*/
+        'cache'=>array(
+            'class'=>'CDbCache',
+        ),
 		'db'=>array(
 			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/jhekasoft.db',
             'tablePrefix'=>'jh_',
+            'schemaCachingDuration'=>3600,
 		),
 		// uncomment the following to use a MySQL database
 		/*

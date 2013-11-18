@@ -122,15 +122,15 @@ class CommentController extends Controller
 	 */
 	public function actionIndex()
 	{
-        $dataProvider=new CActiveDataProvider('Comment', array(
-            'criteria'=>array(
-                'with'=>'post',
-                'order'=>'t.status, t.create_time DESC',
+        $dataProvider = new CActiveDataProvider('Comment', array(
+            'criteria' => array(
+                'with' => 'post',
+                'order' => 't.status, t.create_time DESC',
             ),
         ));
 
-        $this->render('index',array(
-            'dataProvider'=>$dataProvider,
+        $this->render('index', array(
+            'dataProvider' => $dataProvider,
         ));
 	}
 
@@ -139,7 +139,7 @@ class CommentController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new Comment('search');
+		$model = new Comment('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['Comment']))
 			$model->attributes=$_GET['Comment'];

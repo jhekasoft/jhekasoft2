@@ -17,6 +17,12 @@
 		));
 		$this->endWidget();
 	?>
+
+    <?php if(!Yii::app()->user->isGuest) $this->widget('UserMenu'); ?>
+
+    <?php $this->widget('TagCloud'); ?>
+
+    <?php $this->widget('RecentComments'); ?>
 	</div><!-- sidebar -->
 </div>
 <?php $this->endContent(); ?>

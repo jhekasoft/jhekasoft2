@@ -19,9 +19,9 @@ class Post extends CActiveRecord
     const STATUS_DRAFT = 1;
     const STATUS_PUBLISHED = 2;
     const STATUS_ARCHIVED = 3;
-    
-    private $oldTags;
-    
+
+    private $_oldTags;
+
 	/**
 	 * @return string the associated database table name
 	 */
@@ -134,62 +134,101 @@ class Post extends CActiveRecord
 	{
 		return parent::model($className);
 	}
-    
-    protected function beforeSave()
-    {
-        if (parent::beforeSave()) {
-            if ($this->isNewRecord) {
-                $this->create_time = $this->update_time = time();
-                $this->author_id = Yii::app()->user->id;
-            } else {
-                $this->update_time = time();
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    protected function afterSave()
-    {
-        parent::afterSave();
-        Tag::model()->updateFrequency($this->oldTags, $this->tags);
-    }
 
-    protected function afterFind()
-    {
-        parent::afterFind();
-        $this->oldTags = $this->tags;
-    }
 
-    public function normalizeTags($attribute,$params)
-    {
-        $this->tags = Tag::array2string(array_unique(Tag::string2array($this->tags)));
-    }
-    
-    public function getUrl()
-    {
-        return Yii::app()->createUrl('post/view', array(
-            'id' => $this->id,
-            'title' => $this->title,
-        ));
-    }
-    
-    protected function afterDelete()
-    {
-        parent::afterDelete();
-        Comment::model()->deleteAll('post_id='.$this->id);
-        Tag::model()->updateFrequency($this->tags, '');
-    }
-    
-    public function addComment($comment)
-    {
-        if(Yii::app()->params['commentNeedApproval']) {
-            $comment->status=Comment::STATUS_PENDING;
-        } else {
-            $comment->status=Comment::STATUS_APPROVED;
-        }
-        $comment->post_id = $this->id;
-        return $comment->save();
-    }
+	/**
+	 * @return string the URL that shows the detail of the post
+	 */
+	public function getUrl()
+	{
+		return Yii::app()->createUrl('post/view', array(
+			'id'=>$this->id,
+			'title'=>$this->title,
+		));
+	}
+
+	/**
+	 * @return array a list of links that point to the post list filtered by every tag of this post
+	 */
+	public function getTagLinks()
+	{
+		$links=array();
+		foreach(Tag::string2array($this->tags) as $tag)
+			$links[]=CHtml::link(CHtml::encode($tag), array('post/index', 'tag'=>$tag));
+		return $links;
+	}
+
+	/**
+	 * Normalizes the user-entered tags.
+	 */
+	public function normalizeTags($attribute,$params)
+	{
+		$this->tags=Tag::array2string(array_unique(Tag::string2array($this->tags)));
+	}
+
+	/**
+	 * Adds a new comment to this post.
+	 * This method will set status and post_id of the comment accordingly.
+	 * @param Comment the comment to be added
+	 * @return boolean whether the comment is saved successfully
+	 */
+	public function addComment($comment)
+	{
+		if(Yii::app()->params['commentNeedApproval'])
+			$comment->status=Comment::STATUS_PENDING;
+		else
+			$comment->status=Comment::STATUS_APPROVED;
+		$comment->post_id=$this->id;
+		return $comment->save();
+	}
+
+	/**
+	 * This is invoked when a record is populated with data from a find() call.
+	 */
+	protected function afterFind()
+	{
+		parent::afterFind();
+		$this->_oldTags=$this->tags;
+	}
+
+	/**
+	 * This is invoked before the record is saved.
+	 * @return boolean whether the record should be saved.
+	 */
+	protected function beforeSave()
+	{
+		if(parent::beforeSave())
+		{
+			if($this->isNewRecord)
+			{
+				$this->create_time=$this->update_time=time();
+				$this->author_id=Yii::app()->user->id;
+			}
+			else
+				$this->update_time=time();
+			return true;
+		}
+		else
+			return false;
+	}
+
+	/**
+	 * This is invoked after the record is saved.
+	 */
+	protected function afterSave()
+	{
+		parent::afterSave();
+		Tag::model()->updateFrequency($this->_oldTags, $this->tags);
+	}
+
+	/**
+	 * This is invoked after the record is deleted.
+	 */
+	protected function afterDelete()
+	{
+		parent::afterDelete();
+		Comment::model()->deleteAll('post_id='.$this->id);
+		Tag::model()->updateFrequency($this->tags, '');
+	}
+
 }
