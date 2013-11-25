@@ -91,4 +91,6 @@ return array(
 		// this is used in contact page
 		'adminEmail'=>'jheka@mail.ru',
 	),
+
+    'theme' => 'bootstrap',
 );
