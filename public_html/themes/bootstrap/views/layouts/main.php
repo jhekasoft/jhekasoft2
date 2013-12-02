@@ -6,17 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <?php Yii::app()->clientScript->registerCoreScript('jquery'); ?>
+
 	<!-- Bootstrap CSS framework -->
-	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/bootstrap/css/bootstrap.min.css" />
-    <?php Yii::app()->clientscript->registerScriptFile('https://code.jquery.com/jquery.js'); ?>
-    <?php Yii::app()->clientscript->registerScriptFile(Yii::app()->request->baseUrl . '/bootstrap/js/bootstrap.min.js'); ?>
-	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/bootstrap/css/bootstrap.min.css" />
+    <?php Yii::app()->clientscript->registerScriptFile(Yii::app()->theme->baseUrl . '/bootstrap/js/bootstrap.min.js'); ?>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-    <?php
-//        Yii::app()->clientscript
-//            ->registerScriptFile('https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
-//            ->registerScriptFile('https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js');
-    ?>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
 	<![endif]-->
 
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
