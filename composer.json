@@ -4,6 +4,6 @@
         "drmabuse/yii-bootstrap-3-module": "dev-master"
     },
     "config": {
-        "vendor-dir": "protected/vendors"
+        "vendor-dir": "public_html/protected/vendor"
     }
 }
