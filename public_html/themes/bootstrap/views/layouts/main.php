@@ -40,7 +40,7 @@
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
 
-<body style="padding-top: 50px;">
+<body style="padding-top: 70px;">
 
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
@@ -82,7 +82,7 @@
 
 </div><!-- /.container -->
 
-<div id="footer" style="background-color: #f5f5f5;">
+<div id="footer" style="background-color: #f5f5f5; padding: 20px;">
     Copyright &copy; <?php echo date('Y'); ?> by My Company.<br/>
     All Rights Reserved.<br/>
     <?php echo Yii::powered(); ?>
