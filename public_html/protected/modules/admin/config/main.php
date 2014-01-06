@@ -7,6 +7,7 @@ return array(
     'import' => array(
         'application.modules.' . $module_name . '.models.*',
         'application.modules.' . $module_name . '.components.*',
+        'application.modules.' . $module_name . '.controllers.BaseAdminController',
     ),
     'modules' => array(
         $module_name => array(
