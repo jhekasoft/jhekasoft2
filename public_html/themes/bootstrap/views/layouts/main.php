@@ -54,16 +54,17 @@
             <a class="navbar-brand" href="#"><?php echo CHtml::encode(Yii::app()->name); ?></a>
         </div>
         <div class="collapse navbar-collapse">
-            <?php $this->widget('zii.widgets.CMenu',array(
+            <?php $this->widget('zii.widgets.CMenu', array(
+                'items' => array(
+                    array('label' => 'Home', 'url' => array('/site/index')),
+                    array('label' => 'Blog', 'url' => array('/blog/post/index')),
+                    array('label' => 'About', 'url' => array('/site/page', 'view' => 'about')),
+                    array('label' => 'Contact', 'url' => array('/site/contact')),
+                    array('label' => 'Login', 'url' => array('/site/login'), 'visible' => Yii::app()->user->isGuest),
+                    array('label' => 'Logout (' . Yii::app()->user->name . ')', 'url' => array('/site/logout'), 'visible' => !Yii::app()->user->isGuest)
+                ),
                 'htmlOptions' => array( 'class' => 'nav navbar-nav' ),
                 'activeCssClass' => 'active',
-                'items'=>array(
-                    array('label'=>'Home', 'url'=>array('/site/index')),
-                    array('label'=>'About', 'url'=>array('/site/page', 'view'=>'about')),
-                    array('label'=>'Contact', 'url'=>array('/site/contact')),
-                    array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
-                    array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
-                ),
             )); ?>
         </div><!--/.nav-collapse -->
     </div>
